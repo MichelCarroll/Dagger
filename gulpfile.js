@@ -8,7 +8,7 @@ var babel = require('babelify');
 
 function compile(watch) {
   var bundler = watchify(browserify('./src/index.js', { debug: true })
-    .transform("babelify", {presets: ["es2015", "react"]})
+    .transform("babelify", {presets: ["es2015", "react", "stage-0"]})
   );
 
   function rebundle() {

@@ -1,30 +1,26 @@
 
 
-import React, { Component} from 'react'
-import { Surface, Layer, Text } from 'react-canvas'
+import React, { PropTypes, Component} from 'react'
 import ReactDOM from 'react-dom'
-
+import { Tile } from './components'
 
 
 class MainComponent extends Component  {
-
-  getTextStyle() {
+  getStyles() {
     return {
-
-      top: 10,
-      left: 0,
-      width: window.innerWidth,
-      height: 20,
-      lineHeight: 20
+      width: '100%',
+      height: '100%'
     }
   }
-
   render() {
-    return <Surface width={window.innerWidth} height={window.innerHeight} top={0} left={0}>
-      <Text style={this.getTextStyle()}>
-        LOL
-      </Text>
-    </Surface>
+    return <div style={this.getStyles()}>
+      <Tile content="@" x={5} y={5} />
+      <Tile content="@" x={5} y={6} />
+      <Tile content="@" x={5} y={7} />
+      <Tile content="@" x={6} y={5} />
+      <Tile content="@" x={7} y={5} />
+      <Tile content="@" x={6} y={6} />
+    </div>
   }
 }
 
