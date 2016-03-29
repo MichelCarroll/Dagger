@@ -18,6 +18,7 @@
     "browserify": "^13.0.0",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^1.6.0",
+    "lodash": "^4.6.1",
     "react": "^0.14.7",
     "react-canvas": "^1.1.0",
     "react-dom": "^0.14.7",

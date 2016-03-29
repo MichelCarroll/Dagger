@@ -4,33 +4,25 @@ import React, { PropTypes, Component} from 'react'
 import ReactDOM from 'react-dom'
 import { Provider, connect } from 'react-redux'
 import store from './store'
-import { Tile } from './components'
+import { Map } from './components'
+import { moveUp, moveDown, moveRight, moveLeft } from './reducer'
 
+const KEY_LEFT = 37
+const KEY_UP = 38
+const KEY_RIGHT = 39
+const KEY_DOWN = 40
 
-@connect((state) => { return {
-  map: state.map
-}})
-class Map extends Component  {
-  getStyles() {
-    return {
-      width: '100%',
-      height: '100%'
-    }
-  }
-  getTiles() {
-    return this.props.map.reduce((tiles, row, y) => {
-      return Array.prototype.concat.apply(tiles, row.map((tile, x) => {
-        return React.createElement(
-          Tile,
-          { ...tile, x, y, key: `${x}.${y}`
-        })
-      }))
-    }, [])
-  }
-  render() {
-    return <div style={this.getStyles()}>
-      {this.getTiles()}
-    </div>
+window.onkeydown = function(event) {
+  const action = getActionFromKeydown(event.keyCode)
+  action && store.dispatch(action)
+}
+
+function getActionFromKeydown(code) {
+  switch(code) {
+    case KEY_UP:    return moveUp();
+    case KEY_DOWN:  return moveDown();
+    case KEY_RIGHT: return moveRight();
+    case KEY_LEFT:  return moveLeft();
   }
 }
 
