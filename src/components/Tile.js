@@ -7,7 +7,9 @@ export default class Tile extends Component  {
   static propTypes = {
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
-    content: PropTypes.string.isRequired
+    content: PropTypes.string.isRequired,
+    color: PropTypes.string.isRequired,
+    background: PropTypes.string.isRequired
   };
 
   getTileSize() {
@@ -25,8 +27,8 @@ export default class Tile extends Component  {
       lineHeight: this.getTileSize()+'px',
       fontFamily: '"Lucida Console", Monaco, monospace',
       fontSize: 14,
-      color: "red",
-      background: "blue",
+      color: this.props.color,
+      background: this.props.background,
       textAlign: "center"
     }
   }

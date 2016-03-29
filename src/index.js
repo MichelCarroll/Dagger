@@ -4,6 +4,26 @@ import React, { PropTypes, Component} from 'react'
 import ReactDOM from 'react-dom'
 import { Tile } from './components'
 
+function guy() {
+  return { color: "red", background: "blue", content: "@" }
+}
+
+const map = [
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
+  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()]
+]
 
 class MainComponent extends Component  {
   getStyles() {
@@ -12,14 +32,16 @@ class MainComponent extends Component  {
       height: '100%'
     }
   }
+  getTiles() {
+    return map.reduce((tiles, row, y) => {
+      return Array.prototype.concat.apply(tiles, row.map((tile, x) => {
+        return React.createElement(Tile, { ...tile, x, y })
+      }))
+    }, [])
+  }
   render() {
     return <div style={this.getStyles()}>
-      <Tile content="@" x={5} y={5} />
-      <Tile content="@" x={5} y={6} />
-      <Tile content="@" x={5} y={7} />
-      <Tile content="@" x={6} y={5} />
-      <Tile content="@" x={7} y={5} />
-      <Tile content="@" x={6} y={6} />
+      {this.getTiles()}
     </div>
   }
 }
