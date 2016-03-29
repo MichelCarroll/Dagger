@@ -5,37 +5,75 @@ const TYPE_ROCK = 'rock'
 const TYPE_EMPTY = 'empty'
 
 const mapWidth = 50
-const mapHeight= 20
+const mapHeight = 20
 
-function initMap() {
-  return _.range(mapHeight).map((y) => {
-    return _.range(mapWidth).map((x) => {
-      if((x + y) % 2 == 0) {
-          return TYPE_EMPTY
+class Map {
+
+  constructor(width, height) {
+    this.width = width;
+    this.height = height;
+
+    this.data = _.range(height).map((y) => {
+      return _.range(width).map((x) => {
+        return TYPE_ROCK
+      })
+    })
+  }
+
+  applyToCells(func) {
+    return this.data.map((row, y) => {
+      return row.map((cell, x) => {
+        return func(cell, x, y)
+      })
+    })
+  }
+
+  toDefinitions() {
+    return this.applyToCells((type, x, y) => {
+      switch(type) {
+        case TYPE_ROCK:  return { color: "", background: "black", content: "" }
+        case TYPE_EMPTY: return { color: "", background: "yellow", content: "" }
+      }
+    })
+  }
+
+}
+
+
+
+class DungeonMap extends Map {
+
+  constructor(width, height) {
+    super(width, height)
+
+    this.drawFirstRoom()
+  }
+
+  distance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
+  }
+
+  drawFirstRoom() {
+    const midX = Math.floor(this.width / 2)
+    const midY = Math.floor(this.height / 2)
+    this.drawCircleRoom(midX, midY, 4)
+  }
+
+  drawCircleRoom(x, y, size) {
+    this.data = this.applyToCells((type, x2, y2) => {
+      if(this.distance(x, y, x2, y2) <= size) {
+        return TYPE_EMPTY
       }
       return TYPE_ROCK
     })
-  })
+  }
+
 }
 
-function applyToCells(map, func) {
-  return map.map((row, y) => {
-    return row.map((cell, x) => {
-      return func(cell, x, y)
-    })
-  })
+export function dungeonMap() {
+  return (new DungeonMap(mapWidth, mapHeight)).toDefinitions()
 }
-
-function typeToDefinition(map) {
-  return applyToCells(map, (type, x, y) => {
-    switch(type) {
-      case TYPE_ROCK:  return { color: "", background: "black", content: "" }
-      case TYPE_EMPTY: return { color: "", background: "yellow", content: "" }
-    }
-  })
-}
-
 
 export function emptyMap() {
-  return typeToDefinition(initMap())
+  return (new Map(mapWidth, mapHeight)).toDefinitions()
 }

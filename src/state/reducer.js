@@ -1,6 +1,6 @@
 
 
-import { emptyMap } from '../mapGenerator'
+import { emptyMap, dungeonMap } from '../mapGenerator'
 import _ from 'lodash'
 
 const MOVE_UP = 'move_up'
@@ -13,7 +13,7 @@ const initialState = {
     x: 25,
     y: 10
   },
-  map: emptyMap()
+  map: dungeonMap()
 }
 
 export default (state = initialState, action) => {
