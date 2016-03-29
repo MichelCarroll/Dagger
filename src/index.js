@@ -2,30 +2,15 @@
 
 import React, { PropTypes, Component} from 'react'
 import ReactDOM from 'react-dom'
+import { Provider, connect } from 'react-redux'
+import store from './store'
 import { Tile } from './components'
 
-function guy() {
-  return { color: "red", background: "blue", content: "@" }
-}
 
-const map = [
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()],
-  [guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy(), guy()]
-]
-
-class MainComponent extends Component  {
+@connect((state) => { return {
+  map: state.map
+}})
+class Map extends Component  {
   getStyles() {
     return {
       width: '100%',
@@ -33,9 +18,12 @@ class MainComponent extends Component  {
     }
   }
   getTiles() {
-    return map.reduce((tiles, row, y) => {
+    return this.props.map.reduce((tiles, row, y) => {
       return Array.prototype.concat.apply(tiles, row.map((tile, x) => {
-        return React.createElement(Tile, { ...tile, x, y })
+        return React.createElement(
+          Tile,
+          { ...tile, x, y, key: `${x}.${y}`
+        })
       }))
     }, [])
   }
@@ -46,6 +34,14 @@ class MainComponent extends Component  {
   }
 }
 
+class App extends Component {
+  render() {
+    return <Provider store={store}>
+      <Map />
+    </Provider>
+  }
+}
+
 window.onload = () => {
-    ReactDOM.render(<MainComponent />, document.getElementById('main'))
+    ReactDOM.render(<App />, document.getElementById('main'))
 }
