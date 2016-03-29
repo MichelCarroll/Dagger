@@ -1,5 +1,6 @@
 
 
+import { emptyMap } from '../mapGenerator'
 import _ from 'lodash'
 
 const MOVE_UP = 'move_up'
@@ -11,7 +12,8 @@ const initialState = {
   character: {
     x: 25,
     y: 10
-  }
+  },
+  map: emptyMap()
 }
 
 export default (state = initialState, action) => {

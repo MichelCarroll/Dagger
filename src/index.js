@@ -3,9 +3,9 @@
 import React, { PropTypes, Component} from 'react'
 import ReactDOM from 'react-dom'
 import { Provider, connect } from 'react-redux'
-import store from './store'
+import store from './state/store'
 import { Map } from './components'
-import { moveUp, moveDown, moveRight, moveLeft } from './reducer'
+import { moveUp, moveDown, moveRight, moveLeft } from './state/reducer'
 
 const KEY_LEFT = 37
 const KEY_UP = 38
