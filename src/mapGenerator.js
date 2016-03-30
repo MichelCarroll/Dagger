@@ -1,8 +1,8 @@
 
 import _ from 'lodash'
 
-const TYPE_ROCK = 'rock'
-const TYPE_EMPTY = 'empty'
+export const TYPE_ROCK = 'rock'
+export const TYPE_EMPTY = 'empty'
 
 const mapWidth = 80
 const mapHeight = 30
@@ -31,8 +31,8 @@ class Map {
   toDefinitions() {
     return this.applyToCells((type, x, y) => {
       switch(type) {
-        case TYPE_ROCK:  return { color: "", background: "black", content: "" }
-        case TYPE_EMPTY: return { color: "", background: "yellow", content: "" }
+        case TYPE_ROCK:  return { color: "", background: "black", content: "", type: TYPE_ROCK}
+        case TYPE_EMPTY: return { color: "", background: "yellow", content: "", type: TYPE_ROCK }
       }
     })
   }
