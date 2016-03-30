@@ -26,10 +26,14 @@ class Map {
     })
   }
 
+  getCellType(x, y) {
+    return this.data[y][x]
+  }
+
   toDefinitions() {
     return this.applyToCells((type, x, y) => {
       switch(type) {
-        case TYPE_ROCK:  return { color: "", background: "black", content: "", type: TYPE_ROCK }
+        case TYPE_ROCK:  return { color: "", background: "black", content: "",  type: TYPE_ROCK }
         case TYPE_EMPTY: return { color: "", background: "yellow", content: "", type: TYPE_EMPTY }
       }
     })
@@ -37,14 +41,15 @@ class Map {
 
 }
 
-
-
 class DungeonMap extends Map {
+
+  static RETRY_FOR_GET_EDGE = 100;
 
   constructor(width, height) {
     super(width, height)
-
+    this.cleared = []
     this.drawFirstRoom()
+    this.cutIntoEdges(10)
   }
 
   distance(x1, y1, x2, y2) {
@@ -57,13 +62,49 @@ class DungeonMap extends Map {
     this.drawCircleRoom(midX, midY, 4)
   }
 
-  drawCircleRoom(x, y, size) {
-    this.data = this.applyToCells((type, x2, y2) => {
-      if(this.distance(x, y, x2, y2) <= size) {
+  drawCircleRoom(midX, midY, size) {
+    this.data = this.applyToCells((type, x, y) => {
+      if(this.distance(midX, midY, x, y) <= size) {
+        this.cleared.push({x, y})
         return TYPE_EMPTY
       }
       return TYPE_ROCK
     })
+  }
+
+  cutIntoEdges(i) {
+    for(let w = 0; w < i; w++) {
+      let {x, y} = this.getRandomEdge()
+      this.data[y][x] = TYPE_EMPTY
+    }
+  }
+
+  getRandomEdge() {
+    let i = 0
+    while(i < DungeonMap.RETRY_FOR_GET_EDGE) {
+      let {x, y} = this.getRandomCellNextToCleared()
+      if(this.getCellType(x, y) === TYPE_ROCK) {
+        return {x, y}
+      }
+    }
+  }
+
+  getRandomCellNextToCleared() {
+    const {x, y} = this.getRandomClearedCell();
+    return this.getRandomAjacentCell(x, y);
+  }
+
+  getRandomAjacentCell(x, y) {
+    switch(_.random(3)) {
+      case 0: return { x, y: y+1}
+      case 1: return { x, y: y-1}
+      case 2: return { x: x+1, y}
+    }
+    return { x: x-1, y}
+  }
+
+  getRandomClearedCell() {
+    return this.cleared[_.random(this.cleared.length - 1)]
   }
 
 }
