@@ -14,10 +14,33 @@ const initialState = {
 
 export function middleware(store) {
   return next => action => {
-    console.log('dispatching', action)
-    let result = next(action)
-    console.log('next state', store.getState())
-    return result
+    const state = store.getState()
+    const { x, y } = store.getState().character
+    let nextX = x
+    let nextY = y
+
+    switch(action.type) {
+      case MOVE_UP:
+        nextY -= 1;
+        break;
+      case MOVE_DOWN:
+        nextY += 1
+        break;
+      case MOVE_RIGHT:
+        nextX += 1
+        break;
+      case MOVE_LEFT:
+        nextX -= 1
+        break;
+      default:
+        return next(action)
+    }
+
+    if(!tileIsEmpty(state, nextX, nextY)) {
+      return;
+    }
+
+    return next(action)
   }
 }
 
