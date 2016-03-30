@@ -6,9 +6,6 @@ import store from '../state/store'
 import { Tile } from '../components'
 
 
-const mapWidth = 50
-const mapHeight= 20
-
 const guyTile = { color: "yellow", background: "black", content: "@" }
 
 

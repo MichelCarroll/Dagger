@@ -10,8 +10,8 @@ const MOVE_LEFT = 'move_left'
 
 const initialState = {
   character: {
-    x: 25,
-    y: 10
+    x: 40,
+    y: 15
   },
   map: dungeonMap()
 }

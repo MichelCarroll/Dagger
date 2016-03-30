@@ -12,19 +12,23 @@ export default class Tile extends Component  {
     background: PropTypes.string.isRequired
   };
 
-  getTileSize() {
-    return 20
+  getWidth() {
+    return 10
+  }
+
+  getHeight() {
+    return 18
   }
 
   getTextStyle() {
     return {
       position: 'absolute',
       display: 'inline-block',
-      left: this.props.x * this.getTileSize(),
-      top: this.props.y * this.getTileSize(),
-      width: this.getTileSize(),
-      height: this.getTileSize(),
-      lineHeight: this.getTileSize()+'px',
+      left: this.props.x * this.getWidth(),
+      top: this.props.y * this.getHeight(),
+      width: this.getWidth(),
+      height: this.getHeight(),
+      lineHeight: this.getHeight()+'px',
       fontFamily: '"Lucida Console", Monaco, monospace',
       fontSize: 14,
       color: this.props.color,

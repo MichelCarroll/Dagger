@@ -4,8 +4,8 @@ import _ from 'lodash'
 const TYPE_ROCK = 'rock'
 const TYPE_EMPTY = 'empty'
 
-const mapWidth = 50
-const mapHeight = 20
+const mapWidth = 80
+const mapHeight = 30
 
 class Map {
 
