@@ -1,4 +1,5 @@
 
+import { tileIsEmpty } from '../map'
 
 export const MOVE_UP = 'move_up'
 export const MOVE_RIGHT = 'move_right'
@@ -8,6 +9,16 @@ export const MOVE_LEFT = 'move_left'
 const initialState = {
   x: 40,
   y: 15
+}
+
+
+export function middleware(store) {
+  return next => action => {
+    console.log('dispatching', action)
+    let result = next(action)
+    console.log('next state', store.getState())
+    return result
+  }
 }
 
 export function reducer(state = initialState, action) {

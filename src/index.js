@@ -19,10 +19,10 @@ window.onkeydown = function(event) {
 
 function getActionFromKeydown(code) {
   switch(code) {
-    case KEY_UP:    return moveUp();
-    case KEY_DOWN:  return moveDown();
-    case KEY_RIGHT: return moveRight();
-    case KEY_LEFT:  return moveLeft();
+    case KEY_UP:     return moveUp();
+    case KEY_DOWN:   return moveDown();
+    case KEY_RIGHT:  return moveRight();
+    case KEY_LEFT:   return moveLeft();
   }
 }
 

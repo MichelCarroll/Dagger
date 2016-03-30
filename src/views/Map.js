@@ -5,9 +5,7 @@ import { Provider, connect } from 'react-redux'
 import store from '../state/store'
 import { Tile } from '../views'
 
-
 const guyTile = { color: "yellow", background: "black", content: "@" }
-
 
 @connect((state) => { return {
   character: state.character,
@@ -30,7 +28,7 @@ export default class Map extends Component  {
     }
     return React.createElement(
       Tile,
-      { ...tile, x, y, key: `${x}.${y}`}
+      { ...tile, x, y, key: `${x}-${y}`}
     )
   }
   getTiles() {

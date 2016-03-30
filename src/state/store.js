@@ -1,10 +1,15 @@
 
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 
-import { reducer as map } from '../components/map'
-import { reducer as character } from '../components/character'
+import { reducer as mapReducer } from '../components/map'
+import { reducer as characterReducer, middleware as characterMiddleware } from '../components/character'
 
-export default createStore(combineReducers({
-  map,
-  character
-}))
+export default createStore(
+  combineReducers({
+    map: mapReducer,
+    character: characterReducer
+  }),
+  applyMiddleware(
+    characterMiddleware
+  )
+)
