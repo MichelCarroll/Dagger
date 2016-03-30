@@ -1,6 +1,6 @@
 
 
-import { dungeonMap } from '../mapGenerator'
+import { dungeonMap } from './generator'
 
 const initialState = dungeonMap()
 
