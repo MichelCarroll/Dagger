@@ -55,7 +55,7 @@ const RIGHT = 'right'
 const LEFT = 'left'
 
 
-class DungeonMap extends Map {
+export class DungeonMap extends Map {
 
   static RETRY_FOR_GET_EDGE = 100;
   static RETRY_FOR_DRAW_FEATURE = 100;

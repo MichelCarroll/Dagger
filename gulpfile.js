@@ -7,7 +7,7 @@ var watchify = require('watchify');
 var babel = require('babelify');
 
 function compile(watch) {
-  var bundler = watchify(browserify('./src/index.js', { debug: true })
+  var bundler = watchify(browserify('./src/index.js', { debug: true, paths: ['./node_modules','./src/'] })
     .transform("babelify", {presets: ["es2015", "react", "stage-0"], plugins: ["transform-decorators-legacy"]})
   );
 

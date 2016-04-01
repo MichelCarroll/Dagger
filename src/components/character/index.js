@@ -1,5 +1,5 @@
 
-import { tileIsEmpty } from '../map'
+import { tileIsEmpty } from 'components/map'
 
 export const MOVE_UP = 'move_up'
 export const MOVE_RIGHT = 'move_right'
