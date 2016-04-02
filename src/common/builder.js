@@ -106,18 +106,9 @@ export class DungeonBuilder {
     );
   }
 
-  getRandomDirection() {
-    switch(_.random(3)) {
-      case 0: return Vector.UP
-      case 1: return Vector.DOWN
-      case 2: return Vector.RIGHT
-      case 3: return Vector.LEFT
-    }
-  }
-
   getRandomAjacentVector(point) {
-    const dir = this.getRandomDirection()
-    return new Vector({ dir, point: point.adjacent(dir)})
+    const dir = _.sample([Vector.UP, Vector.DOWN, Vector.RIGHT, Vector.LEFT])
+    return new Vector({ dir, point: point.adjacent(dir) })
   }
 
   getRandomClearedCell() {
