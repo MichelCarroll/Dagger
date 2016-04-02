@@ -1,6 +1,7 @@
 "use strict";
 
-import { Point, Rect, Map, DungeonMap } from 'components/map/generator'
+import { Map, DungeonMap } from 'components/map/generator'
+import { Rect, Point, Vector } from 'common/geometry'
 import { TYPE_ROCK, TYPE_EMPTY } from 'components/map/types'
 import assert from 'assert'
 import { expect } from 'chai'
