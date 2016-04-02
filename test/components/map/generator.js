@@ -8,8 +8,16 @@ import { expect } from 'chai'
 import _ from 'lodash'
 
 
-describe('Map', () => {
+describe('a Map', () => {
   var map = null
+
+  const checkTypeOfAllCells = (expectedType) => {
+    _.range(0, map.width).forEach((x) => {
+      _.range(0, map.height).forEach((y) => {
+        expect(map.getCellType(new Point({x, y}))).to.be.equal(expectedType)
+      })
+    })
+  }
 
   beforeEach(() => {
     map = new Map(5, 10)
@@ -21,11 +29,7 @@ describe('Map', () => {
   })
 
   it('should have all rock tiles', () => {
-    _.range(0, map.width).forEach((x) => {
-      _.range(0, map.height).forEach((y) => {
-        expect(map.getCellType(new Point({x, y}))).to.be.equal(TYPE_ROCK)
-      })
-    })
+    checkTypeOfAllCells(TYPE_ROCK)
   })
 
   describe('setting to an empty tile', () => {
@@ -54,10 +58,14 @@ describe('Map', () => {
     })
   })
 
+  it('should apply a function to all cells', () => {
+    map.applyToCells((point) => TYPE_EMPTY)
+    checkTypeOfAllCells(TYPE_EMPTY)
+  })
 })
 
 
-describe('Dungeon Map', () => {
+describe('a Dungeon Builder', () => {
   var map = null
   var builder = null
 
