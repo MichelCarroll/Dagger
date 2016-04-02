@@ -1,6 +1,7 @@
 
-import { TYPE_ROCK, TYPE_EMPTY } from './types'
-import { DungeonBuilder, Map } from './generator'
+import { TYPE_ROCK, TYPE_EMPTY } from 'common/types'
+import Map from 'common/map'
+import { DungeonBuilder } from 'common/builder'
 
 const mapWidth = 80
 const mapHeight = 30
