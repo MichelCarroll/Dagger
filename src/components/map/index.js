@@ -1,8 +1,13 @@
 
 import { TYPE_ROCK, TYPE_EMPTY } from './types'
-import { dungeonMap } from './generator'
+import { DungeonMap } from './generator'
 
-const initialState = dungeonMap()
+const mapWidth = 80
+const mapHeight = 30
+
+const initialState = (new DungeonMap(mapWidth, mapHeight))
+  .turnIntoDungeon()
+  .toDefinitions()
 
 export function reducer(state = initialState, action) {
   return state

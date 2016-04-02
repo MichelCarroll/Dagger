@@ -2,10 +2,22 @@
 import _ from 'lodash'
 import { TYPE_ROCK, TYPE_EMPTY } from './types'
 
-const mapWidth = 80
-const mapHeight = 30
 
-class Map {
+export class Point {
+  constructor(coord) {
+    this.x = coord.x
+    this.y = coord.y
+  }
+}
+
+export class Rect {
+  constructor(edge1, edge2) {
+    this.edge1 = edge1
+    this.edge2 = edge2
+  }
+}
+
+export class Map {
 
   constructor(width, height) {
     this.width = width;
@@ -21,24 +33,31 @@ class Map {
   applyToCells(func) {
     return this.data.map((row, y) => {
       return row.map((cell, x) => {
-        return func(cell, x, y)
+        return func(cell, new Point({x, y}))
       })
     })
   }
 
-  getCellType(x, y) {
-    if(!this.data[y]) {
-      return;
-    }
-    return this.data[y][x]
+  doesTileExist(point) {
+    return this.data[point.y] && this.data[point.y][point.x]
   }
 
-  setCellType(x, y, type) {
-    this.data[y][x] = type
+  getCellType(point) {
+    if(!this.doesTileExist(point)) {
+      throw RangeError("Tile does not exist")
+    }
+    return this.data[point.y][point.x]
+  }
+
+  setCellType(point, type) {
+    if(!this.doesTileExist(point)) {
+      throw RangeError("Tile does not exist")
+    }
+    this.data[point.y][point.x] = type
   }
 
   toDefinitions() {
-    return this.applyToCells((type, x, y) => {
+    return this.applyToCells((type, point) => {
       switch(type) {
         case TYPE_ROCK:  return { color: "", background: "black", content: "",  type: TYPE_ROCK }
         case TYPE_EMPTY: return { color: "", background: "yellow", content: "", type: TYPE_EMPTY }
@@ -47,7 +66,6 @@ class Map {
   }
 
 }
-
 
 const UP = 'up'
 const DOWN = 'down'
@@ -63,9 +81,13 @@ export class DungeonMap extends Map {
   constructor(width, height) {
     super(width, height)
     this.cleared = []
+  }
+
+  turnIntoDungeon() {
     this.drawFirstRoom()
     this.cutIntoEdges(10)
     this.drawHallway(10)
+    return this
   }
 
   drawHallway(length) {
@@ -77,30 +99,30 @@ export class DungeonMap extends Map {
   }
 
   attemptDrawHallway(length) {
-    const {dir, x, y} = this.getRandomEdge()
-    let { x1, y1, x2, y2 } = this.vectorToRect(dir, x, y, 1, length)
-    if(this.isAreaRock(x1, y1, x2, y2)) {
-      let { x1, y1, x2, y2 } = this.vectorToRect(dir, x, y, 0, length)
-      this.drawArea( x1, y1, x2, y2 )
+    const {dir, point} = this.getRandomEdge()
+    let rect = this.vectorToRect(dir, point, 1, length)
+    if(this.isAreaRock(rect)) {
+      let rect = this.vectorToRect(dir, point, 0, length)
+      this.digArea(rect)
     }
   }
 
-  dig(x, y) {
-    this.setCellType(x, y, TYPE_EMPTY)
-    this.cleared.push({x, y})
+  dig(point) {
+    this.setCellType(point, TYPE_EMPTY)
+    this.cleared.push(point)
   }
 
-  drawArea(x1, y1, x2, y2) {
-    _.range(x1, x2+1).forEach((x) => {
-      _.range(y1, y2+1).forEach((y) => {
-        this.dig(x, y)
+  digArea(rect) {
+    _.range(rect.edge1.x, rect.edge2.x+1).forEach((x) => {
+      _.range(rect.edge1.y, rect.edge2.y+1).forEach((y) => {
+        this.dig(new Point({x, y}))
       })
     })
   }
 
-  vectorToRect(dir, x, y, thickness, depth) {
-    let x1 = x, x2 = x
-    let y1 = y, y2 = y
+  vectorToRect(dir, point, thickness, depth) {
+    let x1 = point.x, x2 = point.x
+    let y1 = point.y, y2 = point.y
     switch(dir) {
       case UP:
         x1 = Math.max(x1 - thickness, 0);
@@ -123,13 +145,16 @@ export class DungeonMap extends Map {
         x1 = Math.max(x1 - depth, 0)
         break;
     }
-    return {x1, y1, x2, y2}
+    return new Rect(new Point({x:x1, y:y1}), new Point({x:x2, y:y2}))
   }
 
-  isAreaRock(x1, y1, x2, y2) {
-    _.range(x1, x2+1).forEach((x) => {
-      _.range(y1, y2+1).forEach((y) => {
-        if(this.isCellRock(x, y)) {
+  isAreaRock(rect) {
+    _.range(rect.edge1.x, rect.edge2.x+1).forEach((x) => {
+      _.range(rect.edge1.y, rect.edge2.y+1).forEach((y) => {
+        if(!this.doesTileExist(new Point({x, y}))) {
+          return false
+        }
+        if(this.isCellRock(new Point({x, y}))) {
           return false
         }
       })
@@ -137,8 +162,8 @@ export class DungeonMap extends Map {
     return true
   }
 
-  distance(x1, y1, x2, y2) {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
+  distance(point1, point2) {
+    return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2))
   }
 
   drawFirstRoom() {
@@ -148,61 +173,57 @@ export class DungeonMap extends Map {
   }
 
   drawCircleRoom(midX, midY, size) {
-    this.data = this.applyToCells((type, x, y) => {
-      if(this.distance(midX, midY, x, y) <= size) {
-        this.cleared.push({x, y})
+    const midPoint = new Point({x: midX, y: midY})
+    this.data = this.applyToCells((type, point) => {
+      if(this.distance(midPoint, point) <= size) {
+        this.cleared.push(point)
         return TYPE_EMPTY
       }
       return TYPE_ROCK
     })
   }
 
-  isCellRock(x, y) {
-    return this.getCellType(x, y) == TYPE_ROCK
+  isCellRock(point) {
+    return this.getCellType(point) == TYPE_ROCK
   }
 
   cutIntoEdges(i) {
     for(let w = 0; w < i; w++) {
-      let {x, y} = this.getRandomEdge()
-      this.dig(x, y)
+      let { point } = this.getRandomEdge()
+      this.dig(point)
     }
   }
 
   getRandomEdge() {
     let i = 0
     while(i++ < DungeonMap.RETRY_FOR_GET_EDGE) {
-      let {dir, x, y} = this.getRandomCellNextToCleared()
-      let type = this.getCellType(x, y)
-      if(type && type === TYPE_ROCK) {
-        return {dir, x, y}
+      let {dir, point} = this.getRandomCellNextToCleared()
+      if(!this.doesTileExist(point)) {
+        continue;
+      }
+      if(this.getCellType(point) === TYPE_ROCK) {
+        return {dir, point}
       }
     }
   }
 
   getRandomCellNextToCleared() {
-    const {x, y} = this.getRandomClearedCell();
-    return this.getRandomAjacentCell(x, y);
+    return this.getRandomAjacentCell(
+      this.getRandomClearedCell()
+    );
   }
 
-  getRandomAjacentCell(x, y) {
+  getRandomAjacentCell(point) {
     switch(_.random(3)) {
-      case 0: return { dir: DOWN, x, y: y+1}
-      case 1: return { dir: UP, x, y: y-1}
-      case 2: return { dir: RIGHT, x: x+1, y}
+      case 0: return { dir: DOWN,  point: new Point({x: point.x,   y: point.y+1})}
+      case 1: return { dir: UP,    point: new Point({x: point.x,   y: point.y-1})}
+      case 2: return { dir: RIGHT, point: new Point({x: point.x+1, y: point.y})}
     }
-    return { dir: LEFT, x: x-1, y}
+    return { dir: LEFT, point: new Point({x: point.x-1, y: point.y})}
   }
 
   getRandomClearedCell() {
     return this.cleared[_.random(this.cleared.length - 1)]
   }
 
-}
-
-export function dungeonMap() {
-  return (new DungeonMap(mapWidth, mapHeight)).toDefinitions()
-}
-
-export function emptyMap() {
-  return (new Map(mapWidth, mapHeight)).toDefinitions()
 }
