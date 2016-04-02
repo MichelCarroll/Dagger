@@ -3,10 +3,37 @@ import _ from 'lodash'
 import { TYPE_ROCK, TYPE_EMPTY } from './types'
 
 
+
 export class Point {
   constructor(coord) {
     this.x = coord.x
     this.y = coord.y
+  }
+
+  adjacent(dir) {
+    switch(dir) {
+      case Vector.UP:    return new Point({x: this.x, y: this.y-1})
+      case Vector.DOWN:  return new Point({x: this.x, y: this.y+1})
+      case Vector.RIGHT: return new Point({x: this.x+1, y: this.y})
+      case Vector.LEFT:  return new Point({x: this.x-1, y: this.y})
+    }
+  }
+
+  distanceFrom(point) {
+    return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
+  }
+}
+
+export class Vector {
+
+  static UP = 'up'
+  static DOWN = 'down'
+  static RIGHT = 'right'
+  static LEFT = 'left'
+
+  constructor(options) {
+    this.point = options.point
+    this.dir = options.dir
   }
 }
 
@@ -14,6 +41,43 @@ export class Rect {
   constructor(edge1, edge2) {
     this.edge1 = edge1
     this.edge2 = edge2
+  }
+
+  static fromVector(vector, thickness, depth) {
+    const point = vector.point
+    let x1 = point.x, x2 = point.x
+    let y1 = point.y, y2 = point.y
+    switch(vector.dir) {
+      case Vector.UP:
+        x1 = x1 - thickness
+        x2 = x2 + thickness
+        y1 = y1 - depth
+        break;
+      case Vector.DOWN:
+        x1 = x1 - thickness
+        x2 = x2 + thickness
+        y2 = y2 + depth
+        break;
+      case Vector.RIGHT:
+        y1 = y1 - thickness
+        y2 = y2 + thickness
+        x2 = x2 + depth
+        break;
+      case Vector.LEFT:
+        y1 = y1 - thickness
+        y2 = y2 + thickness
+        x1 = x1 - depth
+        break;
+    }
+    return new Rect(new Point({x:x1, y:y1}), new Point({x:x2, y:y2}))
+  }
+
+  apply(func) {
+    _.range(this.edge1.x, this.edge2.x+1).forEach((x) => {
+      _.range(this.edge1.y, this.edge2.y+1).forEach((y) => {
+        func(new Point({x, y}))
+      })
+    })
   }
 }
 
@@ -67,11 +131,6 @@ export class Map {
 
 }
 
-const UP = 'up'
-const DOWN = 'down'
-const RIGHT = 'right'
-const LEFT = 'left'
-
 
 export class DungeonMap extends Map {
 
@@ -86,7 +145,7 @@ export class DungeonMap extends Map {
   turnIntoDungeon() {
     this.drawFirstRoom()
     this.cutIntoEdges(10)
-    this.drawHallway(10)
+    this.drawHallway(100)
     return this
   }
 
@@ -99,71 +158,31 @@ export class DungeonMap extends Map {
   }
 
   attemptDrawHallway(length) {
-    const {dir, point} = this.getRandomEdge()
-    let rect = this.vectorToRect(dir, point, 1, length)
-    if(this.isAreaRock(rect)) {
-      let rect = this.vectorToRect(dir, point, 0, length)
-      this.digArea(rect)
+    const vector = this.getRandomEdge()
+    if(this.isAreaRock(Rect.fromVector(vector, 1, length))) {
+      this.digArea(Rect.fromVector(vector, 0, length))
     }
   }
 
   dig(point) {
+    if(!this.doesTileExist(point)) {
+      return;
+    }
     this.setCellType(point, TYPE_EMPTY)
     this.cleared.push(point)
   }
 
   digArea(rect) {
-    _.range(rect.edge1.x, rect.edge2.x+1).forEach((x) => {
-      _.range(rect.edge1.y, rect.edge2.y+1).forEach((y) => {
-        this.dig(new Point({x, y}))
-      })
+    rect.apply((point) => {
+      this.dig(point)
     })
-  }
-
-  vectorToRect(dir, point, thickness, depth) {
-    let x1 = point.x, x2 = point.x
-    let y1 = point.y, y2 = point.y
-    switch(dir) {
-      case UP:
-        x1 = Math.max(x1 - thickness, 0);
-        x2 = Math.min(x2 + thickness, this.width-1);
-        y1 = Math.max(y1 - depth, 0);
-        break;
-      case DOWN:
-        x1 = Math.max(x1 - thickness, 0)
-        x2 = Math.min(x2 + thickness, this.width-1);
-        y2 = Math.min(y2 + depth, this.height-1);
-        break;
-      case RIGHT:
-        y1 = Math.max(y1 - thickness, 0)
-        y2 = Math.min(y2 + thickness, this.height-1);
-        x2 = Math.min(x2 + depth, this.width-1);
-        break;
-      case LEFT:
-        y1 = Math.max(y1 - thickness, 0);
-        y2 = Math.min(y2 + thickness, this.height-1);
-        x1 = Math.max(x1 - depth, 0)
-        break;
-    }
-    return new Rect(new Point({x:x1, y:y1}), new Point({x:x2, y:y2}))
   }
 
   isAreaRock(rect) {
-    _.range(rect.edge1.x, rect.edge2.x+1).forEach((x) => {
-      _.range(rect.edge1.y, rect.edge2.y+1).forEach((y) => {
-        if(!this.doesTileExist(new Point({x, y}))) {
-          return false
-        }
-        if(this.isCellRock(new Point({x, y}))) {
-          return false
-        }
-      })
+    rect.apply((point) => {
+      return !this.doesTileExist(point) || this.isCellRock(point)
     })
     return true
-  }
-
-  distance(point1, point2) {
-    return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2))
   }
 
   drawFirstRoom() {
@@ -175,7 +194,7 @@ export class DungeonMap extends Map {
   drawCircleRoom(midX, midY, size) {
     const midPoint = new Point({x: midX, y: midY})
     this.data = this.applyToCells((type, point) => {
-      if(this.distance(midPoint, point) <= size) {
+      if(midPoint.distanceFrom(point) <= size) {
         this.cleared.push(point)
         return TYPE_EMPTY
       }
@@ -189,37 +208,41 @@ export class DungeonMap extends Map {
 
   cutIntoEdges(i) {
     for(let w = 0; w < i; w++) {
-      let { point } = this.getRandomEdge()
-      this.dig(point)
+      this.dig(this.getRandomEdge().point)
     }
   }
 
   getRandomEdge() {
     let i = 0
     while(i++ < DungeonMap.RETRY_FOR_GET_EDGE) {
-      let {dir, point} = this.getRandomCellNextToCleared()
-      if(!this.doesTileExist(point)) {
+      let vector = this.getRandomVectorNextToCleared()
+      if(!this.doesTileExist(vector.point)) {
         continue;
       }
-      if(this.getCellType(point) === TYPE_ROCK) {
-        return {dir, point}
+      if(this.getCellType(vector.point) === TYPE_ROCK) {
+        return vector
       }
     }
   }
 
-  getRandomCellNextToCleared() {
-    return this.getRandomAjacentCell(
+  getRandomVectorNextToCleared() {
+    return this.getRandomAjacentVector(
       this.getRandomClearedCell()
     );
   }
 
-  getRandomAjacentCell(point) {
+  getRandomDirection() {
     switch(_.random(3)) {
-      case 0: return { dir: DOWN,  point: new Point({x: point.x,   y: point.y+1})}
-      case 1: return { dir: UP,    point: new Point({x: point.x,   y: point.y-1})}
-      case 2: return { dir: RIGHT, point: new Point({x: point.x+1, y: point.y})}
+      case 0: return Vector.UP
+      case 1: return Vector.DOWN
+      case 2: return Vector.RIGHT
+      case 3: return Vector.LEFT
     }
-    return { dir: LEFT, point: new Point({x: point.x-1, y: point.y})}
+  }
+
+  getRandomAjacentVector(point) {
+    const dir = this.getRandomDirection()
+    return new Vector({ dir, point: point.adjacent(dir)})
   }
 
   getRandomClearedCell() {

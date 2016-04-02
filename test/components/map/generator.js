@@ -70,6 +70,11 @@ describe('Dungeon Map', () => {
         expect(map.getCellType(new Point({x:2, y:3}))).to.be.equal(TYPE_EMPTY)
       })
     })
+    describe('an unexisting tile', () => {
+      it('should not throw', () => {
+        map.dig(new Point({x:20, y:30}))
+      })
+    })
   })
 
   describe('digging area', () => {
