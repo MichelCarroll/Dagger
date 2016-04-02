@@ -49,3 +49,70 @@ describe('a Point', () => {
   })
 
 })
+
+
+const checkCorrectPointComposition = (rect, coords) => {
+  let points = []
+  rect.apply((point) => {
+    points.push(point)
+  })
+
+  expect(points).to.have.lengthOf(coords.length)
+  coords.forEach((coord) => {
+    expect(points.filter((p) => p.x == coord[0] && p.y == coord[1])).to.be.lengthOf(1)
+  })
+}
+
+describe('a square Rect', () => {
+
+  const expectedCoords = [[2,4],[2,5],[3,4],[3,5]]
+
+  it('should be composed of the right points', () => {
+    let rect = new Rect(new Point({x: 2, y: 4}), new Point({x: 3, y: 5}))
+    checkCorrectPointComposition(rect, expectedCoords)
+  })
+
+  describe('built from edges out of order', () => {
+    it('should be composed of the right points', () => {
+      let rect = new Rect(new Point({x: 2, y: 5}), new Point({x: 3, y: 4}))
+      checkCorrectPointComposition(rect, expectedCoords)
+    })
+  })
+})
+
+
+describe('a Rect built from a vector', () => {
+
+  describe('from the right', () => {
+    it('should be composed of the right points', () => {
+      let vector = new Vector({dir: Vector.RIGHT, point: new Point({x: 5, y: 5})})
+      let rect = Rect.fromVector(vector, 1, 1)
+      checkCorrectPointComposition(rect, [[5,4],[5,5],[5,6],[6,4],[6,5],[6,6]])
+    })
+  })
+
+  describe('from the top', () => {
+    it('should be composed of the right points', () => {
+      let vector = new Vector({dir: Vector.UP, point: new Point({x: 5, y: 5})})
+      let rect = Rect.fromVector(vector, 1, 1)
+      checkCorrectPointComposition(rect, [[4,5],[5,5],[6,5],[4,6],[5,6],[6,6]])
+    })
+  })
+
+  describe('from the bottom', () => {
+    it('should be composed of the right points', () => {
+      let vector = new Vector({dir: Vector.DOWN, point: new Point({x: 5, y: 5})})
+      let rect = Rect.fromVector(vector, 1, 1)
+      checkCorrectPointComposition(rect, [[4,5],[5,5],[6,5],[4,4],[5,4],[6,4]])
+    })
+  })
+
+  describe('from the left', () => {
+    it('should be composed of the right points', () => {
+      let vector = new Vector({dir: Vector.LEFT, point: new Point({x: 5, y: 5})})
+      let rect = Rect.fromVector(vector, 1, 1)
+      checkCorrectPointComposition(rect, [[5,4],[5,5],[5,6],[4,4],[4,5],[4,6]])
+    })
+  })
+
+})
