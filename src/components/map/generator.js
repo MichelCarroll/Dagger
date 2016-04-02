@@ -18,6 +18,10 @@ export class Map {
   }
 
   applyToCells(func) {
+    this.data = this.mapCells(func)
+  }
+
+  mapCells(func) {
     return this.data.map((row, y) => {
       return row.map((cell, x) => {
         return func(cell, new Point({x, y}))
@@ -44,7 +48,7 @@ export class Map {
   }
 
   toDefinitions() {
-    return this.applyToCells((type, point) => {
+    return this.mapCells((type, point) => {
       switch(type) {
         case TYPE_ROCK:  return { color: "", background: "black", content: "",  type: TYPE_ROCK }
         case TYPE_EMPTY: return { color: "", background: "yellow", content: "", type: TYPE_EMPTY }
@@ -55,26 +59,30 @@ export class Map {
 }
 
 
-export class DungeonMap extends Map {
+export class DungeonBuilder {
 
   static RETRY_FOR_GET_EDGE = 100;
   static RETRY_FOR_DRAW_FEATURE = 100;
 
-  constructor(width, height) {
-    super(width, height)
+  constructor(map) {
+    this.map = map
     this.cleared = []
+  }
+
+  getMap() {
+    return this.map
   }
 
   turnIntoDungeon() {
     this.drawFirstRoom()
     this.cutIntoEdges(10)
-    this.drawHallway(100)
+    this.drawHallway(10)
     return this
   }
 
   drawHallway(length) {
     let i = 0
-    while(i++ < DungeonMap.RETRY_FOR_DRAW_FEATURE) {
+    while(i++ < DungeonBuilder.RETRY_FOR_DRAW_FEATURE) {
       this.attemptDrawHallway(length)
       break;
     }
@@ -88,10 +96,10 @@ export class DungeonMap extends Map {
   }
 
   dig(point) {
-    if(!this.doesTileExist(point)) {
+    if(!this.map.doesTileExist(point)) {
       return;
     }
-    this.setCellType(point, TYPE_EMPTY)
+    this.map.setCellType(point, TYPE_EMPTY)
     this.cleared.push(point)
   }
 
@@ -103,20 +111,20 @@ export class DungeonMap extends Map {
 
   isAreaRock(rect) {
     rect.apply((point) => {
-      return !this.doesTileExist(point) || this.isCellRock(point)
+      return !this.map.doesTileExist(point) || this.isCellRock(point)
     })
     return true
   }
 
   drawFirstRoom() {
-    const midX = Math.floor(this.width / 2)
-    const midY = Math.floor(this.height / 2)
+    const midX = Math.floor(this.map.width / 2)
+    const midY = Math.floor(this.map.height / 2)
     this.drawCircleRoom(midX, midY, 4)
   }
 
   drawCircleRoom(midX, midY, size) {
     const midPoint = new Point({x: midX, y: midY})
-    this.data = this.applyToCells((type, point) => {
+    this.map.applyToCells((type, point) => {
       if(midPoint.distanceFrom(point) <= size) {
         this.cleared.push(point)
         return TYPE_EMPTY
@@ -126,7 +134,7 @@ export class DungeonMap extends Map {
   }
 
   isCellRock(point) {
-    return this.getCellType(point) == TYPE_ROCK
+    return this.map.getCellType(point) == TYPE_ROCK
   }
 
   cutIntoEdges(i) {
@@ -137,12 +145,12 @@ export class DungeonMap extends Map {
 
   getRandomEdge() {
     let i = 0
-    while(i++ < DungeonMap.RETRY_FOR_GET_EDGE) {
+    while(i++ < DungeonBuilder.RETRY_FOR_GET_EDGE) {
       let vector = this.getRandomVectorNextToCleared()
-      if(!this.doesTileExist(vector.point)) {
+      if(!this.map.doesTileExist(vector.point)) {
         continue;
       }
-      if(this.getCellType(vector.point) === TYPE_ROCK) {
+      if(this.map.getCellType(vector.point) === TYPE_ROCK) {
         return vector
       }
     }
