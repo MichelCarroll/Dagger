@@ -7,6 +7,7 @@ export class Digger {
   constructor(map) {
     this.map = map
     this.cleared = []
+    this.edges = []
   }
 
   dig(point) {
@@ -15,6 +16,10 @@ export class Digger {
     }
     this.map.setCellType(point, TYPE_EMPTY)
     this.cleared.push(point)
+  }
+
+  isEdge(point) {
+
   }
 
   getPastClearedCells() {

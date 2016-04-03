@@ -38,6 +38,28 @@ describe('a Point', () => {
     })
   })
 
+  it('should not be adjacent to one not next to it', () => {
+    let another = new Point({x: 6, y: 11})
+    expect(point.adjacentTo(another)).to.be.false
+    expect(another.adjacentTo(point)).to.be.false
+  })
+
+  it('should be adjacent to one next to it', () => {
+    let another = new Point({x: 5, y: 11})
+    expect(point.adjacentTo(another)).to.be.true
+    expect(another.adjacentTo(point)).to.be.true
+  })
+
+  it('should not be equal to one not like it', () => {
+    let another = new Point({x: 6, y: 11})
+    expect(point.equalTo(another)).to.be.false
+  })
+
+  it('should be equal to one like it', () => {
+    let another = new Point({x: 5, y: 10})
+    expect(point.equalTo(another)).to.be.true
+  })
+
   it('should be the right distance from another', () => {
     let distance = point.distanceFrom(new Point({x: 5, y: 5}))
     expect(distance).to.be.equal(5)
@@ -126,5 +148,5 @@ describe('a Circle', () => {
     const expectedCoords = [[2,4],[2,5],[2,3],[3,4],[1,4]]
     checkCorrectPointComposition(circle, expectedCoords)
   })
-  
+
 })

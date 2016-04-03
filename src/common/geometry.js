@@ -20,6 +20,16 @@ export class Point {
   distanceFrom(point) {
     return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
   }
+
+  adjacentTo(point) {
+    return Vector.directions().reduce((prev, dir) => {
+      return prev || (this.adjacent(dir)).equalTo(point)
+    }, false)
+  }
+
+  equalTo(point) {
+    return point.x === this.x && point.y === this.y
+  }
 }
 
 export class Vector {
@@ -32,6 +42,10 @@ export class Vector {
   constructor(options) {
     this.point = options.point
     this.dir = options.dir
+  }
+
+  static directions() {
+    return [Vector.UP, Vector.DOWN, Vector.RIGHT, Vector.LEFT]
   }
 }
 
