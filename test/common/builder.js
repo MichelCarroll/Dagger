@@ -1,6 +1,6 @@
 "use strict";
 
-import { DungeonBuilder } from 'common/builder'
+import { DungeonBuilder, Digger } from 'common/builder'
 import { Rect, Point, Vector } from 'common/geometry'
 import { TYPE_ROCK, TYPE_EMPTY } from 'common/types'
 import Map from 'common/map'
@@ -9,6 +9,31 @@ import assert from 'assert'
 import { expect } from 'chai'
 import _ from 'lodash'
 
+describe('a Digger', () => {
+  var digger = null
+  var map = null
+
+  beforeEach(() => {
+    map = new Map(5, 10)
+    digger = new Digger(map)
+  })
+
+  describe('digging', () => {
+    describe('an existing middle tile', () => {
+      it('should turn it empty', () => {
+        expect(map.getCellType(new Point({x:2, y:3}))).to.be.equal(TYPE_ROCK)
+        digger.dig(new Point({x:2, y:3}))
+        expect(map.getCellType(new Point({x:2, y:3}))).to.be.equal(TYPE_EMPTY)
+      })
+    })
+    describe('an unexisting tile', () => {
+      it('should not throw', () => {
+        digger.dig(new Point({x:20, y:30}))
+      })
+    })
+  })
+
+})
 
 describe('a Dungeon Builder', () => {
   var map = null
@@ -17,20 +42,6 @@ describe('a Dungeon Builder', () => {
   beforeEach(() => {
     map = new Map(5, 10)
     builder = new DungeonBuilder(map)
-  })
-
-  describe('digging', () => {
-    describe('an existing middle tile', () => {
-      it('should turn it empty', () => {
-        builder.dig(new Point({x:2, y:3}))
-        expect(map.getCellType(new Point({x:2, y:3}))).to.be.equal(TYPE_EMPTY)
-      })
-    })
-    describe('an unexisting tile', () => {
-      it('should not throw', () => {
-        builder.dig(new Point({x:20, y:30}))
-      })
-    })
   })
 
   describe('digging area', () => {

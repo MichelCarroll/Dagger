@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { TYPE_ROCK, TYPE_EMPTY } from 'common/types'
 import { Rect, Point, Vector } from 'common/geometry'
 
-class Digger {
+export class Digger {
   constructor(map) {
     this.map = map
     this.cleared = []
@@ -27,10 +27,11 @@ class Digger {
     })
   }
 
-  getClearedCells() {
+  getPastClearedCells() {
     return this.cleared
   }
 }
+
 
 export class DungeonBuilder {
 
@@ -133,7 +134,7 @@ export class DungeonBuilder {
   }
 
   getRandomClearedCell() {
-    const cells = this.digger.getClearedCells()
+    const cells = this.digger.getPastClearedCells()
     return cells[_.random(cells.length - 1)]
   }
 
