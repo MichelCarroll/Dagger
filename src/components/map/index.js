@@ -6,10 +6,11 @@ import { DungeonBuilder } from 'common/builder'
 const mapWidth = 80
 const mapHeight = 30
 
-const initialState = (new DungeonBuilder(new Map(mapWidth, mapHeight)))
-  .turnIntoDungeon()
-  .getMap()
-  .toDefinitions()
+const map = new Map(mapWidth, mapHeight)
+const builder = new DungeonBuilder(map)
+builder.turnIntoDungeon()
+
+const initialState = map.toDefinitions()
 
 export function reducer(state = initialState, action) {
   return state

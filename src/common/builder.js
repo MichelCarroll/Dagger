@@ -3,6 +3,35 @@ import _ from 'lodash'
 import { TYPE_ROCK, TYPE_EMPTY } from 'common/types'
 import { Rect, Point, Vector } from 'common/geometry'
 
+class Digger {
+  constructor(map) {
+    this.map = map
+    this.cleared = []
+  }
+
+  dig(point) {
+    if(!this.map.doesTileExist(point)) {
+      return;
+    }
+    this.map.setCellType(point, TYPE_EMPTY)
+    this.cleared.push(point)
+  }
+
+  digByFilter(func) {
+    this.map.applyToCells((type, point) => {
+      if(func(point)) {
+        this.cleared.push(point)
+        return TYPE_EMPTY
+      }
+      return TYPE_ROCK
+    })
+  }
+
+  getClearedCells() {
+    return this.cleared
+  }
+}
+
 export class DungeonBuilder {
 
   static RETRY_FOR_GET_EDGE = 100;
@@ -10,18 +39,13 @@ export class DungeonBuilder {
 
   constructor(map) {
     this.map = map
-    this.cleared = []
-  }
-
-  getMap() {
-    return this.map
+    this.digger = new Digger(map)
   }
 
   turnIntoDungeon() {
     this.drawFirstRoom()
     this.cutIntoEdges(10)
     this.drawHallway(10)
-    return this
   }
 
   drawHallway(length) {
@@ -39,17 +63,9 @@ export class DungeonBuilder {
     }
   }
 
-  dig(point) {
-    if(!this.map.doesTileExist(point)) {
-      return;
-    }
-    this.map.setCellType(point, TYPE_EMPTY)
-    this.cleared.push(point)
-  }
-
   digArea(rect) {
     rect.apply((point) => {
-      this.dig(point)
+      this.digger.dig(point)
     })
   }
 
@@ -68,13 +84,10 @@ export class DungeonBuilder {
 
   drawCircleRoom(midX, midY, size) {
     const midPoint = new Point({x: midX, y: midY})
-    this.map.applyToCells((type, point) => {
-      if(midPoint.distanceFrom(point) <= size) {
-        this.cleared.push(point)
-        return TYPE_EMPTY
-      }
-      return TYPE_ROCK
-    })
+    const filter = (point) => {
+      return midPoint.distanceFrom(point) <= size
+    }
+    this.digger.digByFilter(filter)
   }
 
   isCellRock(point) {
@@ -83,21 +96,29 @@ export class DungeonBuilder {
 
   cutIntoEdges(i) {
     for(let w = 0; w < i; w++) {
-      this.dig(this.getRandomEdge().point)
+      this.digger.dig(this.getRandomEdge().point)
     }
   }
 
   getRandomEdge() {
     let i = 0
     while(i++ < DungeonBuilder.RETRY_FOR_GET_EDGE) {
-      let vector = this.getRandomVectorNextToCleared()
-      if(!this.map.doesTileExist(vector.point)) {
-        continue;
-      }
-      if(this.map.getCellType(vector.point) === TYPE_ROCK) {
-        return vector
+      let edge = this.attemptGetRandomEdge()
+      if(edge) {
+        return edge
       }
     }
+  }
+
+  attemptGetRandomEdge() {
+    let vector = this.getRandomVectorNextToCleared()
+    if(!this.map.doesTileExist(vector.point)) {
+      return;
+    }
+    if(this.map.getCellType(vector.point) === TYPE_ROCK) {
+      return;
+    }
+    return vector
   }
 
   getRandomVectorNextToCleared() {
@@ -112,7 +133,8 @@ export class DungeonBuilder {
   }
 
   getRandomClearedCell() {
-    return this.cleared[_.random(this.cleared.length - 1)]
+    const cells = this.digger.getClearedCells()
+    return cells[_.random(cells.length - 1)]
   }
 
 }
