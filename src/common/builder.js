@@ -80,8 +80,7 @@ export class DungeonBuilder {
 
   cutIntoEdges(times) {
     for(let w = 0; w < times; w++) {
-      let edge = this.getRandomEdge()
-      this.digger.dig(edge.point)
+      this.digger.dig(this.getRandomEdge().point)
     }
   }
 
