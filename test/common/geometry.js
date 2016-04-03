@@ -1,6 +1,6 @@
 "use strict";
 
-import { Rect, Point, Vector } from 'common/geometry'
+import { Rect, Point, Vector, Circle } from 'common/geometry'
 
 import assert from 'assert'
 import { expect } from 'chai'
@@ -51,9 +51,9 @@ describe('a Point', () => {
 })
 
 
-const checkCorrectPointComposition = (rect, coords) => {
+const checkCorrectPointComposition = (shape, coords) => {
   let points = []
-  rect.apply((point) => {
+  shape.apply((point) => {
     points.push(point)
   })
 
@@ -115,4 +115,16 @@ describe('a Rect built from a vector', () => {
     })
   })
 
+})
+
+
+
+describe('a Circle', () => {
+
+  it('should be composed of the right points', () => {
+    const circle = new Circle(new Point({x: 2, y: 4}), 1)
+    const expectedCoords = [[2,4],[2,5],[2,3],[3,4],[1,4]]
+    checkCorrectPointComposition(circle, expectedCoords)
+  })
+  
 })

@@ -83,3 +83,27 @@ export class Rect {
     })
   }
 }
+
+
+export class Circle {
+  constructor(middlePoint, radius) {
+    this.middlePoint = middlePoint
+    this.radius = radius
+  }
+
+  apply(func) {
+    const lowerX = this.middlePoint.x - this.radius
+    const lowerY = this.middlePoint.y - this.radius
+    const higherX = this.middlePoint.x + this.radius
+    const higherY = this.middlePoint.y + this.radius
+
+    _.range(lowerX, higherX + 1).forEach((x) => {
+      _.range(lowerY, higherY + 1).forEach((y) => {
+        let point = new Point({x, y})
+        if(this.middlePoint.distanceFrom(point) <= this.radius) {
+          func(point)
+        }
+      })
+    })
+  }
+}

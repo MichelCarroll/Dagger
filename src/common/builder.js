@@ -1,7 +1,7 @@
 
 import _ from 'lodash'
 import { TYPE_ROCK, TYPE_EMPTY } from 'common/types'
-import { Rect, Point, Vector } from 'common/geometry'
+import { Rect, Point, Vector, Circle } from 'common/geometry'
 
 export class Digger {
   constructor(map) {
@@ -15,16 +15,6 @@ export class Digger {
     }
     this.map.setCellType(point, TYPE_EMPTY)
     this.cleared.push(point)
-  }
-
-  digByFilter(func) {
-    this.map.applyToCells((type, point) => {
-      if(func(point)) {
-        this.cleared.push(point)
-        return TYPE_EMPTY
-      }
-      return TYPE_ROCK
-    })
   }
 
   getPastClearedCells() {
@@ -64,40 +54,34 @@ export class DungeonBuilder {
     }
   }
 
-  digArea(rect) {
-    rect.apply((point) => {
+  digArea(shape) {
+    shape.apply((point) => {
       this.digger.dig(point)
     })
   }
 
-  isAreaRock(rect) {
-    rect.apply((point) => {
+  isAreaRock(shape) {
+    shape.apply((point) => {
       return !this.map.doesTileExist(point) || this.isCellRock(point)
     })
     return true
   }
 
   drawFirstRoom() {
-    const midX = Math.floor(this.map.width / 2)
-    const midY = Math.floor(this.map.height / 2)
-    this.drawCircleRoom(midX, midY, 4)
-  }
-
-  drawCircleRoom(midX, midY, size) {
-    const midPoint = new Point({x: midX, y: midY})
-    const filter = (point) => {
-      return midPoint.distanceFrom(point) <= size
-    }
-    this.digger.digByFilter(filter)
+    this.digArea(new Circle(new Point({
+      x: Math.floor(this.map.width / 2),
+      y: Math.floor(this.map.height / 2)
+    }), 4))
   }
 
   isCellRock(point) {
     return this.map.getCellType(point) == TYPE_ROCK
   }
 
-  cutIntoEdges(i) {
-    for(let w = 0; w < i; w++) {
-      this.digger.dig(this.getRandomEdge().point)
+  cutIntoEdges(times) {
+    for(let w = 0; w < times; w++) {
+      let edge = this.getRandomEdge()
+      this.digger.dig(edge.point)
     }
   }
 
@@ -116,7 +100,7 @@ export class DungeonBuilder {
     if(!this.map.doesTileExist(vector.point)) {
       return;
     }
-    if(this.map.getCellType(vector.point) === TYPE_ROCK) {
+    if(this.map.getCellType(vector.point) !== TYPE_ROCK) {
       return;
     }
     return vector
