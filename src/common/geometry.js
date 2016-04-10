@@ -30,6 +30,10 @@ export class Point {
   equalTo(point) {
     return point.x === this.x && point.y === this.y
   }
+
+  edges() {
+    return Vector.directions().map((dir) => this.adjacent(dir))
+  }
 }
 
 export class Vector {

@@ -17,10 +17,10 @@ export default class Map {
   }
 
   applyToCells(func) {
-    this.data = this._mapCells(func)
+    this.data = this.mapCells(func)
   }
 
-  _mapCells(func) {
+  mapCells(func) {
     return this.data.map((row, y) => {
       return row.map((cell, x) => {
         return func(cell, new Point({x, y}))
@@ -47,7 +47,7 @@ export default class Map {
   }
 
   toDefinitions() {
-    return this._mapCells((type, point) => {
+    return this.mapCells((type, point) => {
       switch(type) {
         case TYPE_ROCK:  return { color: "", background: "black", content: "",  type: TYPE_ROCK }
         case TYPE_EMPTY: return { color: "", background: "yellow", content: "", type: TYPE_EMPTY }

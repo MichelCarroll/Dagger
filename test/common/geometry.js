@@ -70,6 +70,16 @@ describe('a Point', () => {
     expect(distance).to.be.equal(0)
   })
 
+  it('should have the right edges', () => {
+    let edges = point.edges()
+    let expectedEdges = [[4,10],[6,10],[5,9],[5,11]]
+    edges.forEach((edge) => {
+      expect(expectedEdges.filter((p) => {
+        return edge.x === p[0] && edge.y === p[1]
+      })).to.be.lengthOf(1)
+    })
+  })
+
 })
 
 
