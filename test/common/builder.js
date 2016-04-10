@@ -25,6 +25,15 @@ describe('a Digger', () => {
         digger.dig(new Point({x:2, y:3}))
         expect(map.getCellType(new Point({x:2, y:3}))).to.be.equal(TYPE_EMPTY)
       })
+      
+      it('should show a cleared cell', () => {
+        expect(digger.getClearedCells()).to.be.lengthOf(0)
+        digger.dig(new Point({x:2, y:3}))
+        expect(digger.getClearedCells()).to.be.lengthOf(1)
+        let cell = digger.getClearedCells()[0]
+        expect(cell.x).to.be.equal(2)
+        expect(cell.y).to.be.equal(3)
+      })
     })
     describe('an unexisting tile', () => {
       it('should not throw', () => {

@@ -17,7 +17,7 @@ export class Digger {
     this.cleared.push(point)
   }
 
-  getPastClearedCells() {
+  getClearedCells() {
     return this.cleared
   }
 }
@@ -117,7 +117,7 @@ export class DungeonBuilder {
   }
 
   getRandomClearedCell() {
-    const cells = this.digger.getPastClearedCells()
+    const cells = this.digger.getClearedCells()
     return cells[_.random(cells.length - 1)]
   }
 
